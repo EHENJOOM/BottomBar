@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="BottomBar">
+        <attr name="titleBeforeColor" format="color"/>
+        <attr name="titleAfterColor" format="color"/>
+        <attr name="titleSize" format="integer"/>
+        <attr name="iconWidth" format="integer"/>
+        <attr name="titleIconMargin" format="integer"/>
+        <attr name="iconHeight" format="integer"/>
+        <attr name="firstChecked" format="integer"/>
+        <attr name="isShowAboveBoundary" format="boolean"/>
+        <attr name="isShowBottomBoundary" format="boolean"/>
+        <attr name="aboveClueHeight" format="integer"/>
+        <attr name="bottomClueHeight" format="integer"/>
+        <attr name="isShowAboveClue" format="boolean"/>
+        <attr name="isShowBottomClue" format="boolean"/>
+        <attr name="boundaryColor" format="color"/>
+    </declare-styleable>
+</resources>
