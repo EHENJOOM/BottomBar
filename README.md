@@ -1,8 +1,10 @@
-# 安卓轻量级底部导航栏
+# 自定义阴影颜色的CardView
 
-目前安卓开发中常常会用到底部导航栏这个控件，但是自己从零开始做一个又太麻烦。因此，我封装了一个底部导航栏，同时，也做了一些修改，用于顶部也十分合适。下面是示例图：
+今天用CardView做卡片式设计的时候，给出的UI让做一个蓝色的阴影效果，我找遍了CardView的接口都没有发现修改阴影颜色的方法，于是看了一下源码，发现谷歌把CardView的阴影颜色给写死了。因此写了一个能自定义颜色、阴影宽度、模糊度的CardView，感觉效果还不错，便封装起来做成依赖库发布了。
 
+一个简单的效果图：
 
+![](C:\Users\hp\Desktop\发票\截图.png)
 
 ## 使用方法：
 
@@ -23,139 +25,86 @@ allprojects {
 然后在dependencies下加入依赖
 
 ```js
-implementation 'com.github.EHENJOOM:BottomBar:1.0.0'
+implementation 'com.github.EHENJOOM:ShadowCardView:1.1.0'
 ```
 
-### 2.在布局文件中添加frameLayout和导航栏
+### 2.在布局文件中添加ShadowCardView
 
 ```xml
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
 
-    <FrameLayout
-        android:id="@+id/fragment_container"
-        android:layout_above="@+id/bottombar"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+   <com.zhk.shadowcardview.ShadowCardView
+       android:layout_width="match_parent"
+       android:layout_height="200dp"
+       android:layout_centerInParent="true"
+       android:layout_marginLeft="40dp"
+       android:layout_marginRight="40dp"
+       app:cornersRadius="15dp"
+       app:shadowColor="@color/red" />
 
-    <com.example.ehenjoom.bottombar.BottomBar
-        android:id="@+id/bottombar"
-        android:layout_width="match_parent"
-        android:layout_height="46dp"
-        android:layout_alignParentBottom="true" />
 </RelativeLayout>
 ```
 
-FrameLayout是用来显示fragment内容的。
-
-### 3.在java代码中添加导航栏item,同时建立各个item对应的类
+### 3.在java代码里修改对应的属性值
 
 ```java
-BottomBar bottomBar=findViewById(R.id.bottombar);
-bottombar.setContainer(R.id.fragment_container)
-    .addItem(Home.class,"首页",homeicon_before,homeicon_after)
-    .addItem(Message.class,"消息",messageicon_before,messageicon_after)
-    .addItem(Me.class,"我",meicon_before,meicon_after)
-    .create();
-```
+public class MainActivity extends AppCompatActivity {
 
-在java代码里首先要调用setContainer()方法设置farmeLayout，然后添加导航栏的item，然后调用设置属性的各个api，最后一定要调用create()方法创建。
-
-##### 注意：此Activity要继承AppCompatActivity才能运行，否则程序会崩溃。关于这点，后续会更新版本来支持其他Activity。
-
-##### 另：如果需要设置成没有图标的导航栏，只需把icon的宽高设置为0即可。
-
-### 4.在item对应的类文件里设置布局
-
-由于使用的是frameLayout，因此item对应的类文件里不能继承Activity，要继承Fragment才行。
-
-```java
-public class Home extends Fragment {
-    
-    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState){
-        View view=inflater.inflate(R.layout.homelayout_fragment,container,false);
-        // 如果需要实例化控件，在这里实例化。
-        TextView textView=view.findViewById(R.id.textView);
-        textView.setText("首页");
-        return view;
-    }
-    
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState){
-        super.onActivityCreated(savedInstanceState);
-        // Fragment里的控件监听事件在这里面实现
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        
+        ShadowCardView shadowCardView=findViewById(R.id.shadowCardView);
+        shadowCardView.setCornersRadius(ShadowCardView.dp2px(this,15))
+                .setShadowColor(getResources().getColor(R.color.red))
+                .setShadowOffsetY(ShadowCardView.dp2px(this,5));
     }
 }
 ```
 
-### 5.设置BottomBar的属性
+### 4.xml标签属性表
 
-#### 在java代码里设置属性
-
-|               api名称                |                api作用                 |
-| :----------------------------------: | :------------------------------------: |
-| setTitleBeforeAndAfterColor(int,int) |         设置文字选中前后的颜色         |
-|          setTitleSize(int)           |       设置文字大小(默认dp为单位)       |
-|          setIconWidth(int)           |             设置图标的宽度             |
-|          setIconHeight(int)          |              设置图标的高              |
-|       setTitleIconMargin(int)        |          设置文字与图标的间隙          |
-|         setFirstChecked(int)         |      设置默认选中的item(默认为0)       |
-|     isShowAboveBoundary(boolean)     |    设置是否显示上方分界线(默认显示)    |
-|    isShowBottomBoundary(boolean)     |   设置是否显示下方分界线(默认不显示)   |
-|       isShowAboveClue(boolean)       | 设置是否显示上方选中提示线(默认不显示) |
-|      isShowBottomClue(boolean)       |  设置是否显示下方选中提示线(默认显示)  |
-|       setAboveClueHeight(int)        |          设置上方提示线的粗细          |
-|       setBottomClueHeight(int)       |          设置下方提示线的粗细          |
-|        setBoundaryColor(int)         |       设置分界线的颜色(默认黑色)       |
-
-java代码：
-
-```java
-bottombar.setTitleSize(14)
-    .setFirstChecked(2)
-    .isShowAboveClue(true)
-```
-
-#### 或者在xml标签里设置属性
-
-要使用这些属性，首先要加入命名空间
+加入命名空间才能使用下面的属性
 
 ```xml
 xmlns:app="http://schemas.android.com/apk/res-auto"
 ```
 
-|        标签名        |              对应属性              |
-| :------------------: | :--------------------------------: |
-|   titleBeforeColor   |          文字选中前的颜色          |
-|   titleAfterColor    |          文字选中后的颜色          |
-|      titleSize       |       文字大小(默认dp为单位)       |
-|      iconWidth       |             图标的宽度             |
-|      iconHeight      |            设置图标的高            |
-|   titleIconMargin    |          文字与图标的间隙          |
-|     firstChecked     |           默认选中的item           |
-| isShowAboveBoundary  |    是否显示上方分界线(默认显示)    |
-| isShowBottomBoundary |   是否显示下方分界线(默认不显示)   |
-|   isShowAboveClue    | 是否显示上方选中提示线(默认不显示) |
-|   isShowBottomClue   |  是否显示下方选中提示线(默认显示)  |
-|   aboveClueHeight    |          上方提示线的粗细          |
-|   bottomClueHeight   |          下方提示线的粗细          |
-|    boundaryColor     |       分界线的颜色(默认黑色)       |
+|       标签名       |         对应属性         |
+| :----------------: | :----------------------: |
+|   cornersRadius    |       CardView圆角       |
+|  shadowLeftHeight  |       左侧阴影宽度       |
+|  shadowTopHeight   |       顶部阴影宽度       |
+| shadowRightHeight  |       右侧阴影宽度       |
+| shadowBottomHeight |       底部阴影宽度       |
+|   shadowOffsetX    |     X轴的阴影偏离度      |
+|   shadowOffsetY    |     Y轴的阴影偏离度      |
+|     cardColor      |      CardView的颜色      |
+|    shadowColor     |         阴影颜色         |
+|    shadowRadius    | 阴影模糊度，值越大越模糊 |
 
-布局文件：
+### 5.java代码方法表
 
-```xml
-<com.github.EHENJOOM.BottomBar
-       xmlns:app="http://schemas.android.com/apk/res-auto"
-       android:id="@+id/bottombar"
-       android:layout_width="match_parent"
-       android:layout_height="45dp"
-                               
-       app:titleSize="14"
-       app:isShowAboveClue="true"
-       app:aboveClueHeight="6"/>
-```
+|           方法名           |           对应属性           |
+| :------------------------: | :--------------------------: |
+|   setCornersRadius(int)    |       设置CardView圆角       |
+|  setShadowLeftHeight(int)  |       设置左侧阴影宽度       |
+|  setShadowTopHeight(int)   |       设置顶部阴影宽度       |
+| setShadowRightHeight(int)  |       设置右侧阴影宽度       |
+| setShadowBottomHeight(int) |       设置底部阴影宽度       |
+|   setShadowOffsetX(int)    |     设置X轴的阴影偏离度      |
+|   setShadowOffsetY(int)    |     设置Y轴的阴影偏离度      |
+|     setCardColor(int)      |      设置CardView的颜色      |
+|    setShadowColor(int)     |         设置阴影颜色         |
+|    setShadowRadius(int)    | 设置阴影模糊度，值越大越模糊 |
 
-##### 另：item选中时的提示线会根据文字长度自动适配。
+##### 需要注意的是，这里宽度的单位为px，如果想使用dp为单位，可以调用dp2px(Context,float)函数将dp转化为px值再传入参数。
+
+后续将会更新更多的属性和方法，有什么想法的小伙伴可以留言。觉得这个控件不错的小伙伴动动手指点个赞呗，也欢迎去[项目地址](https://github.com/EHENJOOM/ShadowCardView)Star。
+
